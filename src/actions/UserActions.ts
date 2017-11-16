@@ -1,24 +1,35 @@
-import { IUserStoreState } from '../stores/User';
-// import UserDispatcher from "../dispatchers/UserDispatcher";
-import * as Rx from 'rxjs';
+import { AbstractActionFactory } from '../utils/ActionFactory';
+import { IUserStoreState }       from '../stores/UserStore';
+import { AjaxResponse }          from 'rxjs/Rx';
+import { Observable }            from 'rxjs/Observable';
+import UserDispatcher            from '../dispatchers/UserDispatcher';
+import Api                       from '../api/api';
 
 export enum EUserActions {
-  registerUser
+  registerUser,
+  auth,
+  getInfo
 }
 
-// function actionFactory(action: EUserActions, data: IUserStoreState) {
-//   UserDispatcher.dispatch({action, data})
-// }
+const ActionFactory = AbstractActionFactory(UserDispatcher);
 
 export const UserActions = {
-  registerUser: (u: IUserStoreState) => {
-    Rx.Observable.ajax({
-      url: '/users',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({user: u})
-    }).subscribe((e) => {console.log(e)})
+  registerUser(user: IUserStoreState): Observable<AjaxResponse> {
+    return ActionFactory.ApiAction(
+      EUserActions.registerUser,
+      Api.post('/users', JSON.stringify({user})).pluck('response')
+    );
+  },
+  auth(auth: Partial<IUserStoreState>): Observable<string> {
+    return ActionFactory.ApiAction(
+      EUserActions.auth,
+      Api.post('/users/auth', JSON.stringify({auth})).pluck('response').pluck('jwt')
+    );
+  },
+  userInfo(): Observable<IUserStoreState> {
+    return ActionFactory.ApiAction(
+      EUserActions.getInfo,
+      Api.get('/users/1').pluck('response')
+    );
   }
-}
+};

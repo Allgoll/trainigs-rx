@@ -1,29 +1,30 @@
 import * as React from 'react';
-import List from "semantic-ui-react/dist/commonjs/elements/List/List";
-import Image from "semantic-ui-react/dist/commonjs/elements/Image/Image";
-import Header from "semantic-ui-react/dist/commonjs/elements/Header/Header";
+
+import UserStore, {IUserStoreState} from '../../stores/UserStore';
+import {storeDecorator}             from '../../utils/decorators';
+import Header                       from 'semantic-ui-react/dist/commonjs/elements/Header/Header';
+import Image                        from 'semantic-ui-react/dist/commonjs/elements/Image/Image';
+import List                         from 'semantic-ui-react/dist/commonjs/elements/List/List';
 
 interface IUserProps {
-
+  user?: IUserStoreState;
 }
 
-interface IUserState {
-
-}
-
-export default class User extends React.PureComponent<IUserProps, IUserState> {
+@storeDecorator(UserStore, 'user')
+export default class User extends React.PureComponent<IUserProps, {}> {
 
   constructor(props: IUserProps) {
     super(props);
   }
 
   render() {
+    const {user} = this.props;
     return (
       <List inverted>
         <List.Item>
-          <Image avatar src={`/images/ade.jpg`} />
+          {user && user.token && <Image avatar src={`/images/ade.jpg`} />}
           <List.Content>
-            <Header>User Name</Header>
+            <Header>{user ? user.name : ''}</Header>
           </List.Content>
         </List.Item>
       </List>
